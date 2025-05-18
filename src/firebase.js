@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDRz7vTxCmhag63VoAHuatw6XOsA8R1pjo",
-  authDomain: "my-journal-5f55a.firebaseapp.com",
-  projectId: "my-journal-5f55a",
-  storageBucket: "my-journal-5f55a.appspot.com",  // fix domain here
-  messagingSenderId: "225670581218",
-  appId: "1:225670581218:web:06e1f3d95eb4dd104247bb"
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
