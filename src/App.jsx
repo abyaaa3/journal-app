@@ -34,13 +34,21 @@ export default function App() {
         const entriesRef = collection(db, "journals", sharedJournalDocId, "entries");
         const q = query(entriesRef, orderBy("createdAt", "desc"));
 
-        const unsubscribeEntries = onSnapshot(q, (querySnapshot) => {
-          const newEntries = [];
-          querySnapshot.forEach((doc) => {
-            newEntries.push(doc.data());
-          });
-          setEntries(newEntries);
-        });
+        const unsubscribeEntries = onSnapshot(
+          q,
+          (querySnapshot) => {
+            const newEntries = [];
+            querySnapshot.forEach((doc) => {
+              newEntries.push(doc.data());
+            });
+            console.log("Fetched entries:", newEntries); // DEBUG
+            setEntries(newEntries);
+          },
+          (error) => {
+            console.error("Error fetching entries:", error);
+            setError("Error fetching entries: " + error.message);
+          }
+        );
 
         return unsubscribeEntries;
       } else {
@@ -55,7 +63,9 @@ export default function App() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      console.log("User logged in:", email); // DEBUG
     } catch (err) {
+      console.error("Login error:", err);
       setError(err.message);
     }
   };
@@ -64,12 +74,17 @@ export default function App() {
     setError("");
     try {
       await createUserWithEmailAndPassword(auth, email, pass);
+      console.log("User registered:", email); // DEBUG
     } catch (err) {
+      console.error("Registration error:", err);
       setError(err.message);
     }
   };
 
-  const logout = () => signOut(auth);
+  const logout = () => {
+    signOut(auth);
+    console.log("User logged out"); // DEBUG
+  };
 
   const onJournalChange = (e) => {
     setJournalText(e.target.value);
@@ -78,19 +93,20 @@ export default function App() {
   const saveEntry = async () => {
     if (user && journalText.trim()) {
       const entriesRef = collection(db, "journals", sharedJournalDocId, "entries");
-      console.log("Trying to save entry:", journalText);
+      console.log("Trying to save entry:", journalText); // DEBUG
       try {
         await addDoc(entriesRef, {
           text: journalText.trim(),
           createdAt: serverTimestamp(),
         });
-        console.log("Entry saved successfully.");
+        console.log("Entry saved successfully."); // DEBUG
         setJournalText("");
       } catch (error) {
         console.error("Failed to save entry:", error.message);
+        setError("Failed to save entry: " + error.message);
       }
     } else {
-      console.log("Save skipped: no user logged in or empty journal text.");
+      console.log("Save skipped: no user logged in or empty journal text."); // DEBUG
     }
   };
 
@@ -145,6 +161,8 @@ export default function App() {
       <button className="btn retro-btn" onClick={saveEntry}>
         Save Entry
       </button>
+
+      {error && <p className="error">{error}</p>}
 
       <div className="entries">
         <h3>Past Entries</h3>
