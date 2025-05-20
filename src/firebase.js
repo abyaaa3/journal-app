@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Use Vite's environment variables
+// Firebase config using Vite environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: import.meta.env.VITE_AUTH_DOMAIN,
@@ -13,7 +13,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID
 };
 
+// Log to verify env vars are loaded properly
+console.log("Firebase projectId from env:", import.meta.env.VITE_PROJECT_ID);
+
+// Initialize Firebase app
 const app = initializeApp(firebaseConfig);
+
+// Get Auth and Firestore instances
 const auth = getAuth(app);
 const db = getFirestore(app);
 
