@@ -6,13 +6,21 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 
 export default function App() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [user, setUser] = useState(null);
   const [journalText, setJournalText] = useState("");
+  const [entries, setEntries] = useState([]);
   const [error, setError] = useState("");
 
   const sharedJournalDocId = "shared-journal";
@@ -21,20 +29,30 @@ export default function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setError("");
+
       if (currentUser) {
-        const docRef = doc(db, "journals", sharedJournalDocId);
-        const unsubscribeDoc = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setJournalText(docSnap.data().text || "");
-          } else {
-            setJournalText("");
-          }
+        const entriesRef = collection(
+          db,
+          "journals",
+          sharedJournalDocId,
+          "entries"
+        );
+        const q = query(entriesRef, orderBy("createdAt", "desc"));
+
+        const unsubscribeEntries = onSnapshot(q, (querySnapshot) => {
+          const newEntries = [];
+          querySnapshot.forEach((doc) => {
+            newEntries.push(doc.data());
+          });
+          setEntries(newEntries);
         });
-        return unsubscribeDoc;
+
+        return unsubscribeEntries;
       } else {
-        setJournalText("");
+        setEntries([]);
       }
     });
+
     return unsubscribeAuth;
   }, []);
 
@@ -58,12 +76,23 @@ export default function App() {
 
   const logout = () => signOut(auth);
 
-  const onJournalChange = async (e) => {
-    const newText = e.target.value;
-    setJournalText(newText);
-    if (user) {
-      const docRef = doc(db, "journals", sharedJournalDocId);
-      await setDoc(docRef, { text: newText });
+  const onJournalChange = (e) => {
+    setJournalText(e.target.value);
+  };
+
+  const saveEntry = async () => {
+    if (user && journalText.trim()) {
+      const entriesRef = collection(
+        db,
+        "journals",
+        sharedJournalDocId,
+        "entries"
+      );
+      await addDoc(entriesRef, {
+        text: journalText,
+        createdAt: new Date(),
+      });
+      setJournalText("");
     }
   };
 
@@ -106,14 +135,31 @@ export default function App() {
           Logout
         </button>
       </header>
-      <p className="subtitle">Your Shared Journal</p>
+
+      <p className="subtitle">Write a New Entry</p>
       <textarea
         className="journal-textarea"
         value={journalText}
         onChange={onJournalChange}
         placeholder="Write your journal here..."
-        rows={20}
+        rows={6}
       />
+      <button className="btn retro-btn" onClick={saveEntry}>
+        Save Entry
+      </button>
+
+      <div className="entries">
+        <h3>Past Entries</h3>
+        {entries.length === 0 ? (
+          <p>No entries yet.</p>
+        ) : (
+          entries.map((entry, index) => (
+            <div key={index} className="entry-box">
+              <p>{entry.text}</p>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
