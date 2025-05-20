@@ -8,11 +8,11 @@ import {
 } from "firebase/auth";
 import {
   collection,
-  doc,
   addDoc,
   query,
   orderBy,
   onSnapshot,
+  serverTimestamp, // ✅ imported
 } from "firebase/firestore";
 
 export default function App() {
@@ -82,17 +82,22 @@ export default function App() {
 
   const saveEntry = async () => {
     if (user && journalText.trim()) {
-      const entriesRef = collection(
-        db,
-        "journals",
-        sharedJournalDocId,
-        "entries"
-      );
-      await addDoc(entriesRef, {
-        text: journalText,
-        createdAt: new Date(),
-      });
-      setJournalText("");
+      try {
+        const entriesRef = collection(
+          db,
+          "journals",
+          sharedJournalDocId,
+          "entries"
+        );
+        await addDoc(entriesRef, {
+          text: journalText,
+          createdAt: serverTimestamp(), // ✅ Corrected timestamp
+        });
+        setJournalText("");
+      } catch (error) {
+        console.error("Error saving journal entry:", error);
+        setError("Failed to save entry. Please try again.");
+      }
     }
   };
 
