@@ -3,23 +3,23 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Firebase config using Vite environment variables
+// Firebase config from Vite environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: import.meta.env.VITE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_APP_ID
+  appId: import.meta.env.VITE_APP_ID,
 };
 
-// Log to verify env vars are loaded properly
-console.log("Firebase projectId from env:", import.meta.env.VITE_PROJECT_ID);
+// Debug: log config to verify environment variables load properly (remove in production)
+console.log("Firebase Config:", firebaseConfig);
 
 // Initialize Firebase app
 const app = initializeApp(firebaseConfig);
 
-// Get Auth and Firestore instances
+// Initialize Firebase Auth and Firestore
 const auth = getAuth(app);
 const db = getFirestore(app);
 
