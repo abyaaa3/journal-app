@@ -1,108 +1,82 @@
 .container {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: left;
-  background: #f4f4f4;
+  max-width: 960px;
+  margin: auto;
   padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.welcome {
+  font-size: 1.5rem;
 }
 
 .input {
+  display: block;
   width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
   font-size: 1rem;
-  border: 2px solid #ccc;
-  border-radius: 10px;
 }
 
-.subtitle {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.button-row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn.retro-btn {
+  background-color: #000;
+  color: #0f0;
+  padding: 0.5rem 1rem;
+  border: 2px solid #0f0;
+  font-family: "Courier New", Courier, monospace;
+  cursor: pointer;
+}
+
+.journal-main {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.write-section, .view-section {
+  flex: 1;
+  min-width: 300px;
 }
 
 .journal-textarea {
   width: 100%;
-  min-height: 120px;
   padding: 1rem;
   font-size: 1rem;
-  border: 2px solid #ccc;
-  border-radius: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
   margin-bottom: 1rem;
-  resize: vertical;
-}
-
-.btn {
-  margin: 0.5rem;
-}
-
-.retro-btn {
-  background: #000;
-  color: #0f0;
-  border: 2px solid #0f0;
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-  font-family: 'Courier New', Courier, monospace;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.retro-btn:hover {
-  background: #222;
-  border-color: #0f0;
-}
-
-.tab-buttons {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
-}
-
-.tab-buttons .btn.active {
-  background-color: #ffe57f;
-  box-shadow: 0 0 10px #ffc107;
-  font-weight: bold;
-  color: #000;
-}
-
-.entries {
-  margin-top: 2rem;
 }
 
 .entry-box {
-  background: #fff;
+  background: #fefbf3;
+  border: 1px solid #aaa;
   padding: 1rem;
-  border-left: 4px solid #00bcd4;
   margin-bottom: 1rem;
   border-radius: 8px;
+  white-space: pre-wrap;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .error {
   color: red;
-  margin-bottom: 1rem;
-}
-
-.fadeIn {
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  font-weight: bold;
 }
