@@ -8,10 +8,10 @@ import {
 } from "firebase/auth";
 import {
   collection,
-  addDoc,
   query,
   orderBy,
   onSnapshot,
+  addDoc,
   serverTimestamp,
 } from "firebase/firestore";
 
@@ -22,7 +22,6 @@ export default function App() {
   const [journalText, setJournalText] = useState("");
   const [entries, setEntries] = useState([]);
   const [error, setError] = useState("");
-  const [viewMode, setViewMode] = useState("write"); // "write" or "view"
 
   const sharedJournalDocId = "shared-journal";
 
@@ -32,12 +31,7 @@ export default function App() {
       setError("");
 
       if (currentUser) {
-        const entriesRef = collection(
-          db,
-          "journals",
-          sharedJournalDocId,
-          "entries"
-        );
+        const entriesRef = collection(db, "journals", sharedJournalDocId, "entries");
         const q = query(entriesRef, orderBy("createdAt", "desc"));
 
         const unsubscribeEntries = onSnapshot(q, (querySnapshot) => {
@@ -83,17 +77,20 @@ export default function App() {
 
   const saveEntry = async () => {
     if (user && journalText.trim()) {
-      const entriesRef = collection(
-        db,
-        "journals",
-        sharedJournalDocId,
-        "entries"
-      );
-      await addDoc(entriesRef, {
-        text: journalText.trim(),
-        createdAt: serverTimestamp(),
-      });
-      setJournalText("");
+      const entriesRef = collection(db, "journals", sharedJournalDocId, "entries");
+      console.log("Trying to save entry:", journalText);
+      try {
+        await addDoc(entriesRef, {
+          text: journalText.trim(),
+          createdAt: serverTimestamp(),
+        });
+        console.log("Entry saved successfully.");
+        setJournalText("");
+      } catch (error) {
+        console.error("Failed to save entry:", error.message);
+      }
+    } else {
+      console.log("Save skipped: no user logged in or empty journal text.");
     }
   };
 
@@ -137,51 +134,31 @@ export default function App() {
         </button>
       </header>
 
-      <div className="tab-buttons">
-        <button
-          className={`btn retro-btn ${viewMode === "write" ? "active" : ""}`}
-          onClick={() => setViewMode("write")}
-        >
-          📝 Write
-        </button>
-        <button
-          className={`btn retro-btn ${viewMode === "view" ? "active" : ""}`}
-          onClick={() => setViewMode("view")}
-        >
-          📖 View
-        </button>
+      <p className="subtitle">Write a New Entry</p>
+      <textarea
+        className="journal-textarea"
+        value={journalText}
+        onChange={onJournalChange}
+        placeholder="Write your journal here..."
+        rows={6}
+      />
+      <button className="btn retro-btn" onClick={saveEntry}>
+        Save Entry
+      </button>
+
+      <div className="entries">
+        <h3>Past Entries</h3>
+        {entries.length === 0 ? (
+          <p>No entries yet.</p>
+        ) : (
+          entries.map((entry, index) => (
+            <div key={index} className="entry-box">
+              <p>{entry.text}</p>
+            </div>
+          ))
+        )}
       </div>
-
-      {viewMode === "write" && (
-        <>
-          <p className="subtitle">Write a New Entry</p>
-          <textarea
-            className="journal-textarea"
-            value={journalText}
-            onChange={onJournalChange}
-            placeholder="Write your journal here..."
-            rows={6}
-          />
-          <button className="btn retro-btn" onClick={saveEntry}>
-            Save Entry
-          </button>
-        </>
-      )}
-
-      {viewMode === "view" && (
-        <div className="entries">
-          <h3>Past Entries</h3>
-          {entries.length === 0 ? (
-            <p>No entries yet.</p>
-          ) : (
-            entries.map((entry, index) => (
-              <div key={index} className="entry-box">
-                <p>{entry.text || "(No content)"}</p>
-              </div>
-            ))
-          )}
-        </div>
-      )}
     </div>
   );
 }
+
