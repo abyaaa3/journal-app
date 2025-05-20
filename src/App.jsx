@@ -12,7 +12,7 @@ import {
   query,
   orderBy,
   onSnapshot,
-  serverTimestamp, // ✅ imported
+  serverTimestamp,
 } from "firebase/firestore";
 
 export default function App() {
@@ -22,6 +22,7 @@ export default function App() {
   const [journalText, setJournalText] = useState("");
   const [entries, setEntries] = useState([]);
   const [error, setError] = useState("");
+  const [viewMode, setViewMode] = useState("write"); // "write" or "view"
 
   const sharedJournalDocId = "shared-journal";
 
@@ -82,22 +83,17 @@ export default function App() {
 
   const saveEntry = async () => {
     if (user && journalText.trim()) {
-      try {
-        const entriesRef = collection(
-          db,
-          "journals",
-          sharedJournalDocId,
-          "entries"
-        );
-        await addDoc(entriesRef, {
-          text: journalText,
-          createdAt: serverTimestamp(), // ✅ Corrected timestamp
-        });
-        setJournalText("");
-      } catch (error) {
-        console.error("Error saving journal entry:", error);
-        setError("Failed to save entry. Please try again.");
-      }
+      const entriesRef = collection(
+        db,
+        "journals",
+        sharedJournalDocId,
+        "entries"
+      );
+      await addDoc(entriesRef, {
+        text: journalText.trim(),
+        createdAt: serverTimestamp(),
+      });
+      setJournalText("");
     }
   };
 
@@ -141,30 +137,51 @@ export default function App() {
         </button>
       </header>
 
-      <p className="subtitle">Write a New Entry</p>
-      <textarea
-        className="journal-textarea"
-        value={journalText}
-        onChange={onJournalChange}
-        placeholder="Write your journal here..."
-        rows={6}
-      />
-      <button className="btn retro-btn" onClick={saveEntry}>
-        Save Entry
-      </button>
-
-      <div className="entries">
-        <h3>Past Entries</h3>
-        {entries.length === 0 ? (
-          <p>No entries yet.</p>
-        ) : (
-          entries.map((entry, index) => (
-            <div key={index} className="entry-box">
-              <p>{entry.text}</p>
-            </div>
-          ))
-        )}
+      <div className="tab-buttons">
+        <button
+          className={`btn retro-btn ${viewMode === "write" ? "active" : ""}`}
+          onClick={() => setViewMode("write")}
+        >
+          📝 Write
+        </button>
+        <button
+          className={`btn retro-btn ${viewMode === "view" ? "active" : ""}`}
+          onClick={() => setViewMode("view")}
+        >
+          📖 View
+        </button>
       </div>
+
+      {viewMode === "write" && (
+        <>
+          <p className="subtitle">Write a New Entry</p>
+          <textarea
+            className="journal-textarea"
+            value={journalText}
+            onChange={onJournalChange}
+            placeholder="Write your journal here..."
+            rows={6}
+          />
+          <button className="btn retro-btn" onClick={saveEntry}>
+            Save Entry
+          </button>
+        </>
+      )}
+
+      {viewMode === "view" && (
+        <div className="entries">
+          <h3>Past Entries</h3>
+          {entries.length === 0 ? (
+            <p>No entries yet.</p>
+          ) : (
+            entries.map((entry, index) => (
+              <div key={index} className="entry-box">
+                <p>{entry.text || "(No content)"}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
